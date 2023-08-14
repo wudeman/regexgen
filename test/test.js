@@ -3,6 +3,7 @@ const regexgen = require('../');
 
 describe('regexgen', function () {
   it('should generate a char class', function () {
+    console.log(regexgen(["什么","怎么了","干嘛","什么东西","你说什么","怎么啦","谁呀","什么东西啊","是怎么了","你是机器人吗","喂喂","你是","你能再说一遍吗","咋了","什么营业厅","咋啦","你说啥","什么客服","怎么","有事吗","什么意思","干什么","什么呀","干啥","什么什么","啥意思","什么客服啊","干嘛的","什么意思啊","干嘛呢"]));
     assert.deepEqual(regexgen(['a', 'b', 'c']), /[a-c]/);
   });
 
