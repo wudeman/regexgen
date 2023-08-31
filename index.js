@@ -37,6 +37,58 @@ app.get('/api/myendpoint', (req, res) => {
   res.send(regularStr)
 });
 
+const axios = require('axios');
+
+const openaiApiKey = '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';
+const apiUrl = 'https://api.openai-proxy.com/v1/chat/completions';
+const headers = {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${openaiApiKey}`
+};
+
+
+// 处理 GET 请求的示例路由
+app.get('/api/expandWrite', async (req, res) => {
+  try {
+    // 从请求中获取参数
+    const question = req.query.question
+    const num = req.query.num
+
+    const prompt = `请你扮演相似问题扩写助手，我会给你提供的问题样例和扩写数量，然后你进行扩写，尽量差异化和口语化，输出的问题之间使用换行符进行分隔`;
+
+    const answer = '好的，请你输入问题和扩写数量'
+
+    const command = '扩写问题是：' + question + "\n扩写数据量：" + num
+
+    const requestData = {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { "role": "system", "content": prompt },
+        { "role": "assistant", "content": answer },
+        { "role": "user", "content": command },
+      ]
+    };
+
+    const response = await axios.post(apiUrl, requestData, { headers });
+    console.log(JSON.stringify(response.data));
+    const content = response.data.choices[0].message.content
+    
+    // 在返回的内容外包装 <pre> 标签
+    const formattedContent = `<pre>${content}</pre>`;
+    
+    // 设置响应头，指定返回内容为 HTML
+    res.setHeader('Content-Type', 'text/html');
+    
+    // 将带有格式的内容作为响应返回
+    res.send(formattedContent);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+
+
 // 启动服务器，监听特定端口
 app.listen(3000, () => {
   console.log('API 服务器已启动，端口号：3000');
