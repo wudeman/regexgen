@@ -39,8 +39,8 @@ app.get('/api/myendpoint', (req, res) => {
 
 const axios = require('axios');
 
-const openaiApiKey = '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';
-const apiUrl = 'https://api.openai-proxy.com/v1/chat/completions';
+const openaiApiKey = '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';
+const apiUrl = 'https://openai.wndbac.cn/v1/chat/completions';
 const headers = {
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${openaiApiKey}`
@@ -58,7 +58,46 @@ app.get('/api/expandWrite', async (req, res) => {
 
     const answer = '好的，请你输入问题和扩写数量'
 
-    const command = '扩写问题是：' + question + "\n扩写数据量：" + num
+    const command = '扩写问题是：' + question + "\n扩写数量是：" + num
+
+    const requestData = {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { "role": "system", "content": prompt },
+        { "role": "assistant", "content": answer },
+        { "role": "user", "content": command },
+      ]
+    };
+
+    const response = await axios.post(apiUrl, requestData, { headers });
+    console.log(JSON.stringify(response.data));
+    const content = response.data.choices[0].message.content
+    
+    // 在返回的内容外包装 <pre> 标签
+    const formattedContent = `<pre>${content}</pre>`;
+    
+    // 设置响应头，指定返回内容为 HTML
+    res.setHeader('Content-Type', 'text/html');
+    
+    // 将带有格式的内容作为响应返回
+    res.send(formattedContent);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
+app.get('/api/answer', async (req, res) => {
+  try {
+    // 从请求中获取参数
+    const question = req.query.question
+    const num = req.query.num
+
+    const prompt = `请你扮演一位资深的外呼客服，我会提供询问你的问题和让你输出回答的数量，然后你进行回答，回答尽量差异化和口语化，输出的回答之间使用换行符进行分隔`;
+
+    const answer = '好的，请你输入需要我回答的问题和回答问题的数量，我会尽力提供差异化和口语化的回答'
+
+    const command = '回答的问题是：' + question + "\n回答的数量是：" + num
 
     const requestData = {
       model: 'gpt-3.5-turbo',
